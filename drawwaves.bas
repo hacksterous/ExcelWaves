@@ -23,6 +23,8 @@ Function addLine(ws As Worksheet, x1 As Single, y1 As Single, x2 As Single, y2 A
 	Dim shp As Shape
 	Set shp = ws.Shapes.addLine(x1, y1, x2, y2)
 	shp.Name = "VBA_" & ActiveSheet.Shapes.Count
+	shp.Line.Weight = 1
+	shp.Line.ForeColor.RGB = RGB(21, 96, 130)
 	Set addLine = shp
 End Function
 
@@ -179,6 +181,7 @@ Sub DrawWaves()
 	Dim colLetter As String
 	Dim targetColLetter As String
 
+	startDelay = 2
 	clkToQDelay = 4
 
 	Columns("C:ZZ").ColumnWidth = 6
@@ -292,18 +295,18 @@ Sub DrawWaves()
 							
 							'MsgBox "dataCount = " & dataCount
 							
-							x1 = leftPos
+							x1 = startDelay + leftPos
 							y1 = bottomPos - cellHeight / 2
-							x2 = leftPos + clkToQDelay
+							x2 = startDelay + leftPos + clkToQDelay
 							y2 = bottomPos - cellHeight
 
-							x3 = leftPos + dataCount * cellWidth - clkToQDelay
+							x3 = startDelay + leftPos + dataCount * cellWidth - clkToQDelay
 							y3 = bottomPos - cellHeight
 							x4 = x3 + clkToQDelay
 							y4 = bottomPos - cellHeight / 2
 							x5 = x3
 							y5 = bottomPos
-							x6 = leftPos + clkToQDelay
+							x6 = startDelay + leftPos + clkToQDelay
 							y6 = bottomPos
 							'x4 - x1 is the width of the data
 							Dim label As String
