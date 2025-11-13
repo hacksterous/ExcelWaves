@@ -34,6 +34,6 @@ Both the draw commands and the waveform are embedded in Excel.
 16. lX: Like X, unknown bus start, previous was l
 17. hX: Like X, unknown bus start, previous was h
 18. xl: Like x, unknown bus continuing, will be followed by l
-19. xh: Like x, nknown bus continuing, will be followed by h
+19. xh: Like x, unknown bus continuing, will be followed by h
 20. //: signal spacing
 ```
