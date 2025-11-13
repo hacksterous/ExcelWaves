@@ -145,13 +145,13 @@ Sub DrawGap(ByRef polygonShape As Shape, _
 	edge.Line.ForeColor.RGB = RGB(180, 180, 180)
 	edge.Line.Weight = 1
 
-	Set edge = addLine(ws, x3 + 1, y3, x4 + 1, y4)
+	Set edge = addLine(ws, x3 + 2, y3, x4 + 2, y4)
 	edge.Line.ForeColor.RGB = RGB(180, 180, 180)
-	edge.Line.Weight = 0.5
+	edge.Line.Weight = 1
 
-	Set edge = addLine(ws, x4 + 1, y4, x5 + 1, y5)
+	Set edge = addLine(ws, x4 + 2, y4, x5 + 2, y5)
 	edge.Line.ForeColor.RGB = RGB(180, 180, 180)
-	edge.Line.Weight = 0.5
+	edge.Line.Weight = 1
 
 	polygonShape.Name = "VBA_" & ActiveSheet.Shapes.Count
 
@@ -244,9 +244,9 @@ Sub DrawWaves()
 						ElseIf cell.value = "hz" Then
 							addLine ws, leftPos, bottomPos - cellHeight, leftPos + clkToQDelay, bottomPos - cellHeight / 2
 							addLine ws, leftPos + clkToQDelay, bottomPos - cellHeight / 2, leftPos + cellWidth, bottomPos - cellHeight / 2
-						ElseIf cell.value = "l" Then
+						ElseIf cell.value = "l" Or cell.value = "xl" Then
 							addLine ws, leftPos, bottomPos, leftPos + cellWidth, bottomPos
-						ElseIf cell.value = "h" Then
+						ElseIf cell.value = "h" Or cell.value = "xh" Then
 							addLine ws, leftPos, bottomPos - cellHeight, leftPos + cellWidth, bottomPos - cellHeight
 						ElseIf cell.value = "c" Then
 							addLine ws, leftPos, bottomPos - cellHeight, leftPos + cellWidth, bottomPos - cellHeight
@@ -262,7 +262,8 @@ Sub DrawWaves()
 							addLine ws, leftPos + clkToQDelay, bottomPos, leftPos + cellWidth, bottomPos
 						ElseIf cell.value = "z" Then
 							addLine ws, leftPos, bottomPos - cellHeight / 2, leftPos + cellWidth, bottomPos - cellHeight / 2
-						ElseIf cell.value = "D" Or cell.value = "X" Then
+						ElseIf cell.value = "D" Or cell.value = "X" Or cell.value = "Xl" Or cell.value = "Xh" Or cell.value = "lX" Or cell.value = "hX" Then
+							'lX and hX are just like X, except the shape of the initial rise of the polygon is different
 							Dim doingD As Boolean
 							If cell.value = "D" Then
 								doingD = True
@@ -271,22 +272,41 @@ Sub DrawWaves()
 							End If
 							dataCount = 1
 							localCount = c
-						
-							Do
-								localCount = localCount + 1
-								If localCount < 27 Then
-									colLetter = Chr(64 + localCount)
-								Else
-									firstChar = Chr(64 + (localCount \ 26))
-									secondChar = Chr(65 + (localCount Mod 26))
-									colLetter = firstChar & secondChar
-								End If
-								Set cell = ws.Range(colLetter & r)
-								If (cell.value <> "d" And doingD) Or (cell.value <> "x" And Not doingD) Then
-									Exit Do
-								End If
-								dataCount = dataCount + 1
-							Loop
+							'Dim xlOrxhFound As Boolean
+							Dim xChange As String
+							xChange = ""
+
+							If cell.value = "lX" Or cell.value = "hX" Then
+								xChange = cell.value
+								'MsgBox "A. got special cell " & cell.value
+							End If
+							
+							If cell.value <> "Xl" And cell.value <> "Xh" Then
+								Do
+									localCount = localCount + 1
+									If localCount < 27 Then
+										colLetter = Chr(64 + localCount)
+									Else
+										firstChar = Chr(64 + (localCount \ 26))
+										secondChar = Chr(65 + (localCount Mod 26))
+										colLetter = firstChar & secondChar
+									End If
+									Set cell = ws.Range(colLetter & r)
+									If (cell.value <> "d" And doingD) Or (cell.value <> "x" And Not doingD) Then
+										'xlOrxhFound = False
+										If cell.value = "xl" Or cell.value = "xh" Then
+											'xlOrxhFound = True
+											xChange = cell.value
+										End If
+										Exit Do
+									End If
+									dataCount = dataCount + 1
+								Loop
+							Else
+								'xlOrxhFound = True
+								xChange = cell.value
+								dataCount = 1
+							End If
 
 							leftPos = targetCell.Left
 							bottomPos = targetCell.Top
@@ -313,6 +333,17 @@ Sub DrawWaves()
 							label = ""
 							If cellBelow.value <> "//" Then
 								label = cellBelow.value
+							End If
+							If xChange = "xl" Or xChange = "Xl" Then
+								y4 = bottomPos
+							ElseIf xChange = "xh" Or xChange = "Xh" Then
+								y4 = y3 'bottomPos - cellHeight
+							ElseIf xChange = "lX" Then
+								x1 = leftPos
+								y1 = bottomPos
+							ElseIf xChange = "hX" Then
+								x1 = leftPos
+								y1 = bottomPos - cellHeight
 							End If
 							Call DrawPolygonFromPoints(polygonShape, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, label, x4 - x1, doingD)
 							c = c + dataCount - 1
@@ -386,3 +417,4 @@ Sub DrawWaves()
 	End If
 	On Error GoTo 0
 End Sub
+
